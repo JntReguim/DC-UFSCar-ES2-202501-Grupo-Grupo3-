@@ -92,7 +92,7 @@ async function getContentTabcoinsCreditDebit({ recipientId }, options = {}) {
   };
 }
 
-async function rateContent({ contentId, contentOwnerId, fromUserId, transactionType }, options = {}) {
+async function rateContent({ contentId, contentOwnerId, fromUserId, transactionType, reason = null }, options = {}) {
   const tabCoinsToDebitFromUser = -2;
   const tabCashToCreditToUser = 1;
   const tabCoinsToTransactToContentOwner = transactionType === 'credit' ? 1 : -1;
@@ -119,9 +119,9 @@ async function rateContent({ contentId, contentOwnerId, fromUserId, transactionT
       ),
       content_insert AS (
         INSERT INTO content_tabcoin_operations
-          (balance_type, recipient_id, amount, originator_type, originator_id)
+          (balance_type, recipient_id, amount, originator_type, originator_id, reason)
         VALUES
-          ($10, $4, $5, 'user', $1)
+          ($10, $4, $5, 'user', $1, $11)
         RETURNING
           *
       )
@@ -129,7 +129,7 @@ async function rateContent({ contentId, contentOwnerId, fromUserId, transactionT
         get_user_current_tabcoins($1) AS user_current_tabcoin_balance,
         tabcoins_count.total_balance as content_current_tabcoin_balance,
         tabcoins_count.total_credit as content_current_tabcoin_credit,
-        tabcoins_count.total_debit as content_current_tabcoin_debit 
+        tabcoins_count.total_debit as content_current_tabcoin_debit
       FROM
         users_tabcoin_inserts,
         content_insert,
@@ -152,6 +152,8 @@ async function rateContent({ contentId, contentOwnerId, fromUserId, transactionT
       originatorId, // $9
 
       transactionType, // $10
+
+      reason, // $11
     ],
   };
 
