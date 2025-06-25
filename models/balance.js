@@ -100,6 +100,14 @@ async function rateContent({ contentId, contentOwnerId, fromUserId, transactionT
   const originatorType = 'event';
   const originatorId = options.eventId;
 
+  if (transactionType === 'debit' && !reason) {
+    throw new UnprocessableEntityError({
+      message: 'Motivo é obrigatório para transações de débito.',
+      action: 'Você precisa informar um motivo para transações de débito.',
+      errorLocationCode: 'MODEL:BALANCE:RATE_CONTENT:MISSING_REASON',
+    });
+  }
+
   const query = {
     text: `
       WITH users_tabcoin_inserts AS (
