@@ -288,6 +288,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       // ROUND 1 OF DEBIT
       const { response: postTabCoinsResponse1 } = await tabcoinsRequestBuilder.post({
         transaction_type: 'debit',
+        reason: 'Não gostei do conteúdo',
       });
 
       expect.soft(postTabCoinsResponse1.status).toBe(201);
@@ -295,6 +296,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       // ROUND 2 OF DEBIT
       const { response: postTabCoinsResponse2 } = await tabcoinsRequestBuilder.post({
         transaction_type: 'debit',
+        reason: 'Não gostei do conteúdo',
       });
 
       expect.soft(postTabCoinsResponse2.status).toBe(201);
@@ -302,6 +304,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       // ROUND 3 OF DEBIT
       const { response: postTabCoinsResponse3 } = await tabcoinsRequestBuilder.post({
         transaction_type: 'debit',
+        reason: 'Não gostei do conteúdo',
       });
 
       expect.soft(postTabCoinsResponse3.status).toBe(201);
@@ -310,6 +313,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       const { response: postTabCoinsResponse4, responseBody: postTabCoinsResponse4Body } =
         await tabcoinsRequestBuilder.post({
           transaction_type: 'debit',
+          reason: 'Não gostei do conteúdo',
         });
 
       expect.soft(postTabCoinsResponse4.status).toBe(400);
