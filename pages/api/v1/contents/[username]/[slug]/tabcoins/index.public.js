@@ -29,6 +29,7 @@ function postValidationHandler(request, response, next) {
 
   const cleanBodyValues = validator(request.body, {
     transaction_type: 'required',
+    reason: 'optional',
   });
 
   request.body = cleanBodyValues;
@@ -110,6 +111,7 @@ async function postHandler(request, response) {
           contentOwnerId: contentFound.owner_id,
           fromUserId: userTryingToPost.id,
           transactionType: request.body.transaction_type,
+          reason: request.body.reason,
         },
         {
           eventId: currentEvent.id,
