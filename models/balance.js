@@ -92,7 +92,7 @@ async function getContentTabcoinsCreditDebit({ recipientId }, options = {}) {
   };
 }
 
-async function rateContent({ contentId, contentOwnerId, fromUserId, transactionType, reason = null }, options = {}) {
+async function rateContent({ contentId, contentOwnerId, fromUserId, transactionType, reason }, options = {}) {
   const tabCoinsToDebitFromUser = -2;
   const tabCashToCreditToUser = 1;
   const tabCoinsToTransactToContentOwner = transactionType === 'credit' ? 1 : -1;
