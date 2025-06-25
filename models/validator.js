@@ -824,6 +824,12 @@ const schemas = {
     });
   },
 
+  reason: function () {
+    return Joi.object({
+      reason: Joi.string().trim().max(255).optional(),
+    });
+  },
+
   ban_type: function () {
     return Joi.object({
       ban_type: Joi.string()
