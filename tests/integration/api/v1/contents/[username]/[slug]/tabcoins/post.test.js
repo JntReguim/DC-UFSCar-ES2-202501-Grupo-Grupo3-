@@ -75,6 +75,44 @@ describe('POST /api/v1/contents/tabcoins', () => {
       });
     });
 
+    test('With "transaction_type" set to "debit" but without "reason"', async () => {
+      const firstUser = await orchestrator.createUser();
+      const firstUserContent = await orchestrator.createContent({
+        owner_id: firstUser.id,
+        title: 'Root',
+        body: 'Body',
+        status: 'published',
+      });
+
+      const tabcoinsRequestBuilder = new RequestBuilder(
+        `/api/v1/contents/${firstUser.username}/${firstUserContent.slug}/tabcoins`,
+      );
+      const secondUser = await tabcoinsRequestBuilder.buildUser();
+
+      await orchestrator.createBalance({
+        balanceType: 'user:tabcoin',
+        recipientId: secondUser.id,
+        amount: 2,
+      });
+
+      const { response, responseBody } = await tabcoinsRequestBuilder.post({
+        transaction_type: 'debit',
+        // Não envia o campo 'reason'
+      });
+
+      expect.soft(response.status).toBe(422);
+
+      expect(responseBody).toStrictEqual({
+        name: 'UnprocessableEntityError',
+        message: 'Motivo é obrigatório para transações de débito.',
+        action: 'Você precisa informar um motivo para transações de débito.',
+        status_code: 422,
+        error_id: responseBody.error_id,
+        request_id: responseBody.request_id,
+        error_location_code: 'MODEL:BALANCE:RATE_CONTENT:MISSING_REASON',
+      });
+    });
+
     test('With not enough TabCoins', async () => {
       const firstUser = await orchestrator.createUser();
       const firstUserContent = await orchestrator.createContent({
