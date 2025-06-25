@@ -358,6 +358,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       const { response: postTabCoinsResponse1, responseBody: postTabCoinsResponse1Body } =
         await tabcoinsRequestBuilder.post({
           transaction_type: 'debit',
+          reason: 'discordo do conteúdo',
         });
 
       expect.soft(postTabCoinsResponse1.status).toBe(201);
@@ -383,6 +384,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       const { response: postTabCoinsResponse2, responseBody: postTabCoinsResponse2Body } =
         await tabcoinsRequestBuilder.post({
           transaction_type: 'debit',
+          reason: 'discordo do conteúdo',
         });
 
       expect.soft(postTabCoinsResponse2.status).toBe(201);
