@@ -174,6 +174,7 @@ describe('POST /api/v1/contents/tabcoins', () => {
       const { response: postTabCoinsResponse, responseBody: postTabCoinsResponseBody } =
         await tabcoinsRequestBuilder.post({
           transaction_type: 'debit',
+          reason: 'Não gostei do conteúdo',
         });
 
       expect.soft(postTabCoinsResponse.status).toBe(201);
