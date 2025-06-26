@@ -40,7 +40,7 @@ export default function TabCoinButtons({ content }) {
     emoji: ['😡'],
   });
 
-  async function transactTabCoin(transactionType, reason = '') {
+  async function transactTabCoin(transactionType, reason) {
     setIsPosting(true);
 
     if (!user && !isLoading) {
