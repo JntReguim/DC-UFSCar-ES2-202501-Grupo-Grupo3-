@@ -3,6 +3,10 @@ import { useState } from 'react';
 
 export default function JustifyVoteModal({ title, description, onClose, onSubmit }) {
   const [reason, setReason] = useState('');
+  const maxLength = 255;
+  const minLength = 5;
+
+  const isReasonInvalid = reason.trim().length < minLength || reason.trim().length > maxLength;
 
   function handleSubmit() {
     onSubmit(reason);
@@ -45,6 +49,8 @@ export default function JustifyVoteModal({ title, description, onClose, onSubmit
           onChange={(e) => setReason(e.target.value)}
           placeholder="Seja respeitoso e construtivo..."
           rows={4}
+          minLength={minLength}
+          maxLength={maxLength}
           sx={{
             width: '100%',
             mb: 3,
@@ -55,7 +61,7 @@ export default function JustifyVoteModal({ title, description, onClose, onSubmit
           <Button onClick={onClose} variant="invisible">
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} variant="primary" disabled={!reason.trim()}>
+          <Button onClick={handleSubmit} variant="primary" disabled={isReasonInvalid}>
             Confirmar Voto
           </Button>
         </Box>
