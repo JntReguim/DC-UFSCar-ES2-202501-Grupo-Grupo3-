@@ -298,6 +298,7 @@ describe('models/event', () => {
 
       await tabcoinsRequestBuilder.post({
         transaction_type: 'debit',
+        reason: 'Não gostei do conteúdo',
       });
 
       const lastEvent = await orchestrator.getLastEvent();
