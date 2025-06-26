@@ -135,21 +135,21 @@ describe('POST /api/v1/contents/tabcoins', () => {
 
       const { response, responseBody } = await tabcoinsRequestBuilder.post({
         transaction_type: 'debit',
-        reason: null,
+        reason: '',
       });
 
-      expect.soft(response.status).toBe(400); // Agora deve passar
+      expect.soft(response.status).toBe(400);
 
       expect(responseBody).toStrictEqual({
         name: 'ValidationError',
-        message: '"reason" deve ser do tipo String.',
+        message: '"reason" não pode estar em branco.',
         action: 'Ajuste os dados enviados e tente novamente.',
         status_code: 400,
         error_id: responseBody.error_id,
         request_id: responseBody.request_id,
         error_location_code: 'MODEL:VALIDATOR:FINAL_SCHEMA',
         key: 'reason',
-        type: 'string.base',
+        type: 'string.empty',
       });
     });
 
