@@ -334,6 +334,7 @@ async function createRate(contentObject, amount, fromUserId) {
         contentOwnerId: contentObject.owner_id,
         fromUserId: fromUserId,
         transactionType,
+        reason: transactionType === 'debit' ? 'Não gostei do conteúdo' : undefined,
       },
       {
         eventId: currentEvent.id,

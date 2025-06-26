@@ -320,6 +320,7 @@ describe('DELETE /api/v1/users/[username]', () => {
           },
           body: JSON.stringify({
             transaction_type: 'debit',
+            reason: 'Não gostei do conteúdo',
           }),
         },
       );
