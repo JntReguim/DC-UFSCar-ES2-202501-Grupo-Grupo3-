@@ -3,6 +3,7 @@ import { useRevalidate } from 'next-swr';
 import { useEffect, useState } from 'react';
 import { useReward } from 'react-rewards';
 
+import JustifyDownVoteModal from '@/JustifyDownVoteModal';
 import { Box, IconButton, TabCoinBalanceTooltip, Tooltip } from '@/TabNewsUI';
 import { ChevronDownIcon, ChevronUpIcon } from '@/TabNewsUI/icons';
 import { createErrorMessage, useUser } from 'pages/interface';
@@ -10,6 +11,7 @@ import { createErrorMessage, useUser } from 'pages/interface';
 export default function TabCoinButtons({ content }) {
   const router = useRouter();
   const { user, isLoading, fetchUser } = useUser();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [contentObject, setContentObject] = useRevalidate(content);
   const [isPosting, setIsPosting] = useState(false);
@@ -38,7 +40,7 @@ export default function TabCoinButtons({ content }) {
     emoji: ['😡'],
   });
 
-  async function transactTabCoin(transactionType) {
+  async function transactTabCoin(transactionType, reason = '') {
     setIsPosting(true);
 
     if (!user && !isLoading) {
@@ -47,15 +49,18 @@ export default function TabCoinButtons({ content }) {
     }
 
     try {
+      const body = { transaction_type: transactionType };
+      if (reason) {
+        body.reason = reason;
+      }
+
       const response = await fetch(`/api/v1/contents/${contentObject.owner_username}/${contentObject.slug}/tabcoins`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          transaction_type: transactionType,
-        }),
+        body: JSON.stringify(body),
       });
 
       const responseBody = await response.json();
@@ -64,75 +69,81 @@ export default function TabCoinButtons({ content }) {
         fetchUser();
         setContentObject({ ...contentObject, ...responseBody });
         setIsPosting(false);
-        if (transactionType === 'credit') {
-          rewardCredit();
-        }
-
-        if (transactionType === 'debit') {
-          rewardDebit();
-        }
+        if (transactionType === 'credit') rewardCredit();
+        if (transactionType === 'debit') rewardDebit();
         return;
       }
 
-      alert(
-        createErrorMessage(responseBody, {
-          omitErrorId: response.status == 422,
-        }),
-      );
-
+      alert(createErrorMessage(responseBody, { omitErrorId: response.status == 422 }));
       setIsPosting(false);
     } catch (error) {
       setIsPosting(false);
     }
   }
 
+  function handleModalSubmit(reason) {
+    transactTabCoin('debit', reason);
+    setIsModalOpen(false);
+  }
+
   const isInAction = isPosting || isAnimatingCredit || isAnimatingDebit;
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}>
-      <Tooltip text="Achei relevante" direction="ne">
-        <IconButton
-          variant="invisible"
-          aria-label="Creditar TabCoin"
-          icon={ChevronUpIcon}
-          size="small"
-          sx={{ color: 'fg.subtle', lineHeight: '18px' }}
-          onClick={() => transactTabCoin('credit')}
-          disabled={isInAction}
-        />
-      </Tooltip>
-      <TabCoinBalanceTooltip
-        direction="ne"
+    <>
+      <Box
         sx={{
-          width: '100%',
-          textAlign: 'center',
-          fontSize: 0,
-          fontWeight: 'bold',
-          my: 2,
-          py: 1,
-          color: 'accent.emphasis',
-        }}
-        credit={contentObject.tabcoins_credit}
-        debit={contentObject.tabcoins_debit}>
-        <div id={`reward-${contentObject.id}`} style={{ marginLeft: '-10px' }} aria-hidden></div>
-        {contentObject.tabcoins}
-      </TabCoinBalanceTooltip>
-      <Tooltip text="Não achei relevante" direction="ne">
-        <IconButton
-          variant="invisible"
-          aria-label="Debitar TabCoin"
-          icon={ChevronDownIcon}
-          size="small"
-          sx={{ color: 'fg.subtle', lineHeight: '18px', mb: 2 }}
-          onClick={() => transactTabCoin('debit')}
-          disabled={isInAction}
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+        <Tooltip text="Achei relevante" direction="ne">
+          <IconButton
+            variant="invisible"
+            aria-label="Creditar TabCoin"
+            icon={ChevronUpIcon}
+            size="small"
+            sx={{ color: 'fg.subtle', lineHeight: '18px' }}
+            onClick={() => transactTabCoin('credit')}
+            disabled={isInAction}
+          />
+        </Tooltip>
+        <TabCoinBalanceTooltip
+          direction="ne"
+          sx={{
+            width: '100%',
+            textAlign: 'center',
+            fontSize: 0,
+            fontWeight: 'bold',
+            my: 2,
+            py: 1,
+            color: 'accent.emphasis',
+          }}
+          credit={contentObject.tabcoins_credit}
+          debit={contentObject.tabcoins_debit}>
+          <div id={`reward-${contentObject.id}`} style={{ marginLeft: '-10px' }} aria-hidden></div>
+          {contentObject.tabcoins}
+        </TabCoinBalanceTooltip>
+        <Tooltip text="Não achei relevante" direction="ne">
+          <IconButton
+            variant="invisible"
+            aria-label="Debitar TabCoin"
+            icon={ChevronDownIcon}
+            size="small"
+            sx={{ color: 'fg.subtle', lineHeight: '18px', mb: 2 }}
+            onClick={() => setIsModalOpen(true)}
+            disabled={isInAction}
+          />
+        </Tooltip>
+      </Box>
+
+      {isModalOpen && (
+        <JustifyDownVoteModal
+          title="Justificar Voto Negativo"
+          description="Para que seu voto seja computado, por favor, justifique por que você não achou este conteúdo relevante."
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleModalSubmit}
         />
-      </Tooltip>
-    </Box>
+      )}
+    </>
   );
 }
