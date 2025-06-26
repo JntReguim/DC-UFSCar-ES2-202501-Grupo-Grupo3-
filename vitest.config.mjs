@@ -33,5 +33,10 @@ export default defineConfig({
         },
       },
     ],
+    coverage: {
+      provider: 'v8', // ou 'istanbul'
+      reporter: ['text', 'json', 'html'], // Formatos do relatório
+      reportsDirectory: './coverage', // Onde salvar os relatórios
+    },
   },
 });
