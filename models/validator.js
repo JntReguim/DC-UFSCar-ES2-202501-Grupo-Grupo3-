@@ -826,7 +826,7 @@ const schemas = {
 
   reason: function () {
     return Joi.object({
-      reason: Joi.string().trim().max(255).optional(),
+      reason: Joi.string().trim().min(5).max(250).optional(),
     });
   },
 
