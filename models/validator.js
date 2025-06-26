@@ -826,7 +826,12 @@ const schemas = {
 
   reason: function () {
     return Joi.object({
-      reason: Joi.string().trim().min(5).max(250).optional(),
+      reason: Joi.string()
+        .trim()
+        .min(5)
+        .max(250)
+        .regex(/^(?!^[0-9]+$)[\s\S]+$/)
+        .optional(),
     });
   },
 
