@@ -92,6 +92,7 @@ async function postHandler(request, response) {
         id: uuidV4(),
         username: secureInputValues.username,
         description: secureInputValues.description || '',
+        avatar_url: null,
         features: ['read:activation_token'],
         tabcoins: 0,
         tabcash: 0,

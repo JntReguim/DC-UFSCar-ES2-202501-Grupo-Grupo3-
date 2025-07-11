@@ -167,6 +167,7 @@ describe('GET /api/v1/users', () => {
           id: secondUser.id,
           username: secondUser.username,
           description: secondUser.description,
+          avatar_url: secondUser.avatar_url,
           features: secondUser.features,
           tabcoins: 0,
           tabcash: 0,
@@ -177,6 +178,7 @@ describe('GET /api/v1/users', () => {
           id: firstUser.id,
           username: firstUser.username,
           description: firstUser.description,
+          avatar_url: firstUser.avatar_url,
           features: firstUser.features,
           tabcoins: 0,
           tabcash: 0,
@@ -196,7 +198,7 @@ describe('GET /api/v1/users', () => {
 
     test('Retrieving user list removing markdown from description and limiting it to 255 characters', async () => {
       const description = `# This description will contain some **markdown** to test if the _API_ is returning only the content, without markdown.
-      
+
       [www.google.com](https://www.google.com), ![example image](http://example.com/example.jpg)
 
       We will also need to fill it with a lot of characters to make sure the API won't return more than 255 characters. The end.`;
@@ -225,6 +227,7 @@ describe('GET /api/v1/users', () => {
           id: firstUser.id,
           username: firstUser.username,
           description: cleanDescription,
+          avatar_url: firstUser.avatar_url,
           features: firstUser.features,
           tabcoins: 0,
           tabcash: 0,
@@ -235,6 +238,7 @@ describe('GET /api/v1/users', () => {
           id: secondUser.id,
           username: secondUser.username,
           description: secondUser.description,
+          avatar_url: secondUser.avatar_url,
           features: secondUser.features,
           tabcoins: 0,
           tabcash: 0,
@@ -291,6 +295,7 @@ describe('GET /api/v1/users', () => {
           id: secondUser.id,
           username: secondUser.username,
           description: secondUser.description,
+          avatar_url: secondUser.avatar_url,
           features: secondUser.features,
           tabcoins: -2,
           tabcash: 200,
@@ -301,6 +306,7 @@ describe('GET /api/v1/users', () => {
           id: firstUser.id,
           username: firstUser.username,
           description: firstUser.description,
+          avatar_url: firstUser.avatar_url,
           features: firstUser.features,
           tabcoins: 8,
           tabcash: 3,
@@ -379,6 +385,7 @@ describe('GET /api/v1/users', () => {
             id: user.id,
             username: user.username,
             description: user.description,
+            avatar_url: user.avatar_url,
             features: user.features,
             tabcoins: 0,
             tabcash: 0,
@@ -395,6 +402,7 @@ describe('GET /api/v1/users', () => {
           id: privilegedUser.id,
           username: privilegedUser.username,
           description: privilegedUser.description,
+          avatar_url: privilegedUser.avatar_url,
           features: privilegedUser.features,
           tabcoins: 0,
           tabcash: 0,

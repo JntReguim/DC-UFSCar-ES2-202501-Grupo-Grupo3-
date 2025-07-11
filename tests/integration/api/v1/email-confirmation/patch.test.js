@@ -313,6 +313,7 @@ describe('PATCH /api/v1/email-confirmation', () => {
         username: firstUser.username,
         email: firstUser.email,
         description: firstUser.description,
+        avatar_url: firstUser.avatar_url,
         features: firstUser.features,
         notifications: firstUser.notifications,
         created_at: firstUser.created_at.toISOString(),

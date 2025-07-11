@@ -370,6 +370,7 @@ describe('POST /api/v1/moderations/review_firewall/[id]', () => {
           'create:content:text_child',
           'update:content',
           'update:user',
+          'update:user:avatar',
         ]);
 
         const { responseBody: user2ResponseBody } = await usersRequestBuilder.post({
@@ -1161,6 +1162,7 @@ describe('POST /api/v1/moderations/review_firewall/[id]', () => {
           'create:content:text_child',
           'update:content',
           'update:user',
+          'update:user:avatar',
         ];
         expect(user1.features).toStrictEqual(['create:session', 'read:session', ...user1FeaturesNotRemoved]);
 
@@ -1829,6 +1831,7 @@ function mapUserData(user) {
   return {
     created_at: user.created_at.toISOString?.() ?? user.created_at,
     description: user.description,
+    avatar_url: user.avatar_url,
     features: user.features,
     id: user.id,
     tabcash: user.tabcash || 0,

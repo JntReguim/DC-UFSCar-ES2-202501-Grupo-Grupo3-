@@ -65,6 +65,7 @@ describe('POST /api/v1/users [FIREWALL]', () => {
         'create:content:text_child',
         'update:content',
         'update:user',
+        'update:user:avatar',
       ]);
       expect(user1.updated_at.toISOString()).toBe(activatedUser1.updated_at.toISOString());
       expect(Date.parse(user1.updated_at)).not.toBeNaN();
