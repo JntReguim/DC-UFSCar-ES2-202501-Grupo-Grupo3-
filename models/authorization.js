@@ -12,6 +12,9 @@ function can(user, feature, resource) {
     case 'update:user':
       return resource?.id && user.id === resource.id;
 
+    case 'update:user:avatar':
+      return resource?.id && user.id === resource.id;
+
     case 'update:content':
       return (resource?.owner_id && user.id === resource.owner_id) || user.features.includes('update:content:others');
   }
@@ -53,9 +56,21 @@ function filterInput(user, feature, input, target) {
     };
   }
 
+  if (feature === 'update:user:avatar' && can(user, feature, target)) {
+    filteredInputValues = {
+      avatar: input.avatar,
+    };
+  }
+
   if (feature === 'update:user:others' && can(user, feature)) {
     filteredInputValues = {
       description: input.description,
+    };
+  }
+
+  if (feature === 'update:user:avatar:others' && can(user, feature, target)) {
+    filteredInputValues = {
+      avatar: input.avatar,
     };
   }
 
@@ -143,6 +158,7 @@ function filterOutput(user, feature, output) {
       id: output.id,
       username: output.username,
       description: output.description,
+      avatar_url: output.avatar_url,
       features: output.features,
       tabcoins: output.tabcoins,
       tabcash: output.tabcash,
@@ -158,6 +174,7 @@ function filterOutput(user, feature, output) {
         username: output.username,
         email: output.email,
         description: output.description,
+        avatar_url: output.avatar_url,
         notifications: output.notifications,
         features: output.features,
         tabcoins: output.tabcoins,
@@ -173,6 +190,7 @@ function filterOutput(user, feature, output) {
       id: user.id,
       username: user.username,
       description: user.description,
+      avatar_url: user.avatar_url,
       features: user.features,
       tabcoins: user.tabcoins,
       tabcash: user.tabcash,

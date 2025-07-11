@@ -11,6 +11,9 @@ module.exports = {
   compiler: {
     styledComponents: true,
   },
+  images: {
+    domains: [process.env.NEXT_PUBLIC_GATEWAY_URL],
+  },
   redirects() {
     return [
       {

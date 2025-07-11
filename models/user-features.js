@@ -4,6 +4,7 @@ const availableFeatures = new Set([
   'read:user',
   'read:user:self',
   'update:user',
+  'update:user:avatar',
 
   // MIGRATION
   'read:migration',
@@ -36,6 +37,7 @@ const availableFeatures = new Set([
   'read:votes:others',
   'update:content:others',
   'update:user:others',
+  'update:user:avatar:others',
   'ban:user',
   'create:recovery_token:username',
   'read:firewall',
