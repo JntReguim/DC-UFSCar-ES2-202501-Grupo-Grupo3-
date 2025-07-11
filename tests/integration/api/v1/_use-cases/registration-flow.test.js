@@ -99,6 +99,7 @@ describe('Use case: Registration Flow (all successfully)', () => {
       'create:content:text_child',
       'update:content',
       'update:user',
+      'update:user:avatar',
     ]);
   });
 
@@ -150,6 +151,7 @@ describe('Use case: Registration Flow (all successfully)', () => {
       username: postUserResponseBody.username,
       email: 'regularregistrationflow@gmail.com',
       description: '',
+      avatar_url: null,
       notifications: true,
       features: [
         'create:session',
@@ -159,6 +161,7 @@ describe('Use case: Registration Flow (all successfully)', () => {
         'create:content:text_child',
         'update:content',
         'update:user',
+        'update:user:avatar',
       ],
       tabcoins: 0,
       tabcash: 0,

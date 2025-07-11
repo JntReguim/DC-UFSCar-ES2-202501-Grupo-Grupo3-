@@ -32,7 +32,9 @@ async function seedDevelopmentUsers() {
     'create:content:text_child',
     'update:content',
     'update:user',
+    'update:user:avatar',
     'update:user:others',
+    'update:user:avatar:others',
     'ban:user',
     'read:migration',
     'create:migration',
@@ -51,6 +53,7 @@ async function seedDevelopmentUsers() {
     'create:content:text_child',
     'update:content',
     'update:user',
+    'update:user:avatar',
   ]);
 
   console.log('------------------------------');

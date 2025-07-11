@@ -1,5 +1,8 @@
+import fs from 'fs/promises';
+
 import { NotFoundError, ValidationError } from 'errors';
 import database from 'infra/database.js';
+import { storage } from 'infra/storage';
 import authentication from 'models/authentication.js';
 import emailConfirmation from 'models/email-confirmation.js';
 import pagination from 'models/pagination.js';
@@ -278,7 +281,7 @@ function validatePostSchema(postedUserData) {
 }
 
 async function update(targetUser, postedUserData, options = {}) {
-  const validPostedUserData = validatePatchSchema(postedUserData);
+  const validPostedUserData = validatePatchSchema(postedUserData, false);
 
   const isTargetUserComplete = 'username' in targetUser;
   const needsTargetUserComplete = 'username' in validPostedUserData || 'email' in validPostedUserData;
@@ -358,14 +361,59 @@ async function update(targetUser, postedUserData, options = {}) {
   }
 }
 
-function validatePatchSchema(postedUserData) {
-  const cleanValues = validator(postedUserData, {
+async function updateAvatar(targetUser, postedUserData, options = {}) {
+  const validPostedUserData = validatePatchSchema(postedUserData, true);
+  const avatarUrl = await uploadAvatar(validPostedUserData.avatar);
+  const updatedUser = await runUpdateQuery(targetUser, avatarUrl, {
+    transaction: options.transaction,
+  });
+  return updatedUser;
+
+  async function uploadAvatar(persistentFile) {
+    const buffer = await fs.readFile(persistentFile.filepath);
+    const file = new File([buffer], persistentFile.originalFilename, {
+      type: persistentFile.mimetype,
+    });
+    const { cid } = await storage.upload.public.file(file);
+    const url = await storage.gateways.public.convert(cid);
+    return url;
+  }
+
+  async function runUpdateQuery(targetUser, avatarUrl, options) {
+    const query = {
+      text: `
+        UPDATE
+          users
+        SET
+          avatar_url = $1,
+          updated_at = (now() at time zone 'utc')
+        WHERE
+          id = $2
+        RETURNING
+          *,
+          get_user_current_tabcoins($2) as tabcoins,
+          get_user_current_tabcash($2) as tabcash
+      ;`,
+      values: [avatarUrl, targetUser.id],
+    };
+
+    const results = await database.query(query, options);
+    const updatedUser = results.rows[0];
+
+    return updatedUser;
+  }
+}
+
+function validatePatchSchema(postedUserData, isUpdateAvatar) {
+  const fields = {
     username: 'optional',
     email: 'optional',
     password: 'optional',
     description: 'optional',
     notifications: 'optional',
-  });
+  };
+
+  const cleanValues = validator(postedUserData, isUpdateAvatar ? { avatar: 'required' } : fields);
 
   return cleanValues;
 }
@@ -554,6 +602,7 @@ export default Object.freeze({
   findOneByEmail,
   findOneById,
   update,
+  updateAvatar,
   removeFeatures,
   addFeatures,
   createAnonymous,

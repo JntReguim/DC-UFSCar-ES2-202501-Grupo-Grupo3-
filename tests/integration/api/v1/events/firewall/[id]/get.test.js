@@ -1025,6 +1025,7 @@ function mapUsersData(...users) {
     created_at: user.created_at.toISOString(),
     updated_at: user.updated_at.toISOString(),
     description: user.description,
+    avatar_url: user.avatar_url,
     features: user.features,
     tabcash: 0,
     tabcoins: 0,

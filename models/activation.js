@@ -113,6 +113,7 @@ async function activateUserByUserId(userId, options = {}) {
       'create:content:text_child',
       'update:content',
       'update:user',
+      'update:user:avatar',
     ],
     options,
   );

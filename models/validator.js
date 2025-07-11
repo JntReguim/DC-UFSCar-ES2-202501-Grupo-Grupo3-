@@ -168,6 +168,33 @@ const schemas = {
     });
   },
 
+  avatar: function () {
+    return Joi.object({
+      avatar: Joi.object({
+        originalFilename: Joi.string().required(),
+        mimetype: Joi.string().valid('image/png', 'image/jpeg', 'image/webp').required().messages({
+          'any.only': 'O avatar deve ser uma imagem do tipo PNG, JPEG ou WEBP.',
+        }),
+        size: Joi.number()
+          .max(10 * 1024 * 1024)
+          .required(),
+        filepath: Joi.string().required(),
+      })
+        .required()
+        .label('avatar'),
+    });
+  },
+
+  avatar_url: function () {
+    return Joi.object({
+      avatar_url: Joi.string()
+        .max(2000)
+        .custom(trimEnd)
+        .allow('', null)
+        .when('$required.avatar_url', { is: 'required', then: Joi.required(), otherwise: Joi.optional() }),
+    });
+  },
+
   features: function () {
     return Joi.object({
       features: Joi.array()
@@ -623,6 +650,7 @@ const schemas = {
         .valid(
           'create:user',
           'update:user',
+          'update:user:avatar',
           'ban:user',
           'create:content:text_root',
           'create:content:text_child',
@@ -666,6 +694,13 @@ const schemas = {
               old: Joi.string().required(),
               new: Joi.string().required(),
             }),
+          }),
+        },
+        {
+          is: 'update:user:avatar',
+          then: Joi.object({
+            id: Joi.string().required(),
+            updatedFields: Joi.array().items(Joi.string()).required(),
           }),
         },
         {
@@ -762,6 +797,7 @@ const schemas = {
       .concat(schemas.updated_at())
       .concat(schemas.username())
       .concat(schemas.description())
+      .concat(schemas.avatar_url())
       .concat(schemas.features())
       .concat(schemas.tabcoins())
       .concat(schemas.tabcash());
