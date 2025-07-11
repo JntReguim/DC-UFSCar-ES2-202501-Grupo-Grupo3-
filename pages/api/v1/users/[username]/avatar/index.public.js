@@ -21,10 +21,16 @@ const parseMultipartForm = (request, response, next) => {
   const form = formidable({
     multiples: false,
     keepExtensions: true,
+    maxFileSize: 20 * 1024 * 1024, // 20 MB
   });
 
   form.parse(request, (err, fields, files) => {
     if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        response.status(413).json({ error: 'O arquivo enviado excede o tamanho máximo permitido (20MB).' });
+        return;
+      }
+
       response.status(400).json({ error: 'Erro ao processar o upload.' });
       return;
     }
