@@ -5,6 +5,7 @@ vi.mock('models/validator.js');
 
 import fs from 'fs/promises';
 
+import { ValidationError } from 'errors';
 import database from 'infra/database.js';
 import { storage } from 'infra/storage';
 import user from 'models/user';
@@ -53,6 +54,26 @@ describe('User Model', () => {
         expect.any(Object),
       );
       expect(result).toStrictEqual(mockUpdatedUser);
+    });
+
+    it('should throw ValidationError if avatar format is invalid (e.g., PDF, GIF)', async () => {
+      const targetUser = { id: 'user-id-123' };
+      const postedUserData = { avatar: { filepath: '/tmp/file.pdf' } };
+
+      vi.mocked(validator).mockImplementation(() => {
+        throw new ValidationError({
+          message: 'Arquivo inválido',
+          action: 'Envie uma imagem nos formatos suportados',
+          stack: new Error().stack,
+          statusCode: 400,
+          context: null,
+          errorLocationCode: 'MODEL:USER:UPDATE_AVATAR:INVALID_FILE',
+          key: 'avatar',
+          type: 'validation',
+        });
+      });
+
+      await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow(ValidationError);
     });
   });
 });
