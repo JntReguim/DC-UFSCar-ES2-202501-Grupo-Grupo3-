@@ -54,5 +54,16 @@ describe('User Model', () => {
       );
       expect(result).toStrictEqual(mockUpdatedUser);
     });
+
+    it('should throw an error if validator throws (invalid avatar)', async () => {
+      const targetUser = { id: 'user-id-123' };
+      const postedUserData = {};
+
+      vi.mocked(validator).mockImplementation(() => {
+        throw new Error('Invalid avatar data');
+      });
+
+      await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Invalid avatar data');
+    });
   });
 });
