@@ -29,6 +29,14 @@ describe('User Model', () => {
         size: 54321,
         type: 'image/png',
         created_at: ' new Date().toISOString()',
+        number_of_files: 1,
+        mime_type: 'image/png',
+        group_id: 'group-123',
+        keyvalues: {},
+        sha256: 'hash123',
+        path: '/tmp/avatar.png',
+        vectorized: false,
+        network: 'ipfs',
       };
 
       vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
