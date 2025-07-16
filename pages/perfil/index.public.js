@@ -18,6 +18,7 @@ import {
   useConfirm,
 } from '@/TabNewsUI';
 import { createErrorMessage, suggestEmail, useUser } from 'pages/interface';
+import AvatarCircular from 'pages/interface/components/AvatarCircular/index.js';
 
 export default function EditProfile() {
   return (
@@ -44,9 +45,11 @@ function EditProfileForm() {
 
   const [globalMessageObject, setGlobalMessageObject] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUpdateAvatar, setIsLoadingUpdateAvatar] = useState(false);
   const [errorObject, setErrorObject] = useState(undefined);
   const [emailDisabled, setEmailDisabled] = useState(false);
   const [description, setDescription] = useState(user?.description || '');
+  const [avatar, setAvatar] = useState(undefined);
   const [showUsernameCaption, setShowUsernameCaption] = useState(false);
 
   useEffect(() => {
@@ -65,6 +68,61 @@ function EditProfileForm() {
   function clearMessages() {
     setErrorObject(undefined);
     setGlobalMessageObject(undefined);
+  }
+
+  async function handleAvatarUpload() {
+    if (!avatar) {
+      setErrorObject({ key: 'avatar', message: 'Selecione uma foto de perfil para enviar.' });
+      return;
+    }
+
+    setIsLoadingUpdateAvatar(true);
+    setErrorObject(undefined);
+
+    const formData = new FormData();
+    formData.append('avatar', avatar);
+
+    try {
+      const response = await fetch(`/api/v1/users/${user.username}/avatar`, {
+        method: 'PATCH',
+        body: formData,
+      });
+
+      const responseBody = await response.json();
+
+      if (response.status === 200) {
+        await fetchUser();
+
+        setGlobalMessageObject({
+          type: 'success',
+          text: 'Foto de perfil salva com sucesso!',
+        });
+
+        setIsLoadingUpdateAvatar(false);
+        return;
+      }
+
+      if (response.status === 400) {
+        setErrorObject(responseBody);
+        setIsLoadingUpdateAvatar(false);
+        return;
+      }
+
+      if (response.status >= 403) {
+        setGlobalMessageObject({
+          type: 'danger',
+          text: createErrorMessage(responseBody),
+        });
+        setIsLoadingUpdateAvatar(false);
+        return;
+      }
+    } catch (error) {
+      setGlobalMessageObject({
+        type: 'danger',
+        text: 'Não foi possível se conectar ao TabNews. Por favor, verifique sua conexão.',
+      });
+      setIsLoadingUpdateAvatar(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -190,6 +248,43 @@ function EditProfileForm() {
   return (
     <form style={{ width: '100%' }} onSubmit={handleSubmit} onChange={clearMessages}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <FormControl id="avatar">
+          <FormControl.Label>Avatar</FormControl.Label>
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <AvatarCircular user={user} avatar={avatar} />
+          </Box>
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            onChange={(event) => {
+              const file = event.target.files[0];
+              if (file && !['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+                setErrorObject({ key: 'avatar', message: 'Tipo de arquivo inválido. Envie PNG, JPG ou WebP.' });
+                event.target.value = '';
+                setAvatar(null);
+              } else {
+                clearMessages();
+                setAvatar(file);
+              }
+            }}
+          />
+          {errorObject?.key === 'avatar' && (
+            <FormControl.Validation variant="error">{errorObject.message}</FormControl.Validation>
+          )}
+        </FormControl>
+        <FormControl>
+          <FormControl.Label visuallyHidden>Salvar Foto de Perfil</FormControl.Label>
+          <ButtonWithLoader
+            variant="default"
+            size="large"
+            type="button"
+            sx={{ width: '100%' }}
+            aria-label="Salvar Foto de Perfil"
+            onClick={handleAvatarUpload}
+            isLoading={isLoadingUpdateAvatar}>
+            Salvar Foto de Perfil
+          </ButtonWithLoader>
+        </FormControl>
         <FormControl id="username" required>
           <FormControl.Label>Nome de usuário</FormControl.Label>
           <TextInput

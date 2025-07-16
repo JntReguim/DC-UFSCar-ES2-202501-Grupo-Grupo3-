@@ -66,8 +66,40 @@ export const getStaticProps = getStaticPropsRevalidate(async (context) => {
       revalidate,
     };
   }
+  const usernames = [...new Set(contentListFound.map((content) => content.owner_username))];
+  const users = await Promise.all(
+    usernames.map(async (username) => {
+      try {
+        const userData = await user.findOneByUsername(username);
+        return userData;
+      } catch (error) {
+        return null;
+      }
+    }),
+  );
 
-  const secureContentListFound = authorization.filterOutput(userTryingToGet, 'read:content:list', contentListFound);
+  const userMap = {};
+  users.forEach((userData) => {
+    if (userData) {
+      userMap[userData.username] = userData;
+    }
+  });
+  const contentListWithUserData = contentListFound.map((content) => ({
+    ...content,
+    owner_user: userMap[content.owner_username]
+      ? {
+          username: userMap[content.owner_username].username,
+          avatar_url: userMap[content.owner_username].avatar_url,
+          id: userMap[content.owner_username].id,
+        }
+      : null,
+  }));
+
+  const secureContentListFound = authorization.filterOutput(
+    userTryingToGet,
+    'read:content:list',
+    contentListWithUserData,
+  );
 
   for (const content of secureContentListFound) {
     content.body = removeMarkdown(content.body, { maxLength: 255 });

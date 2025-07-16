@@ -33,6 +33,7 @@ import content from 'models/content.js';
 import user from 'models/user.js';
 import validator from 'models/validator.js';
 import { createErrorMessage, useUser } from 'pages/interface';
+import AvatarCircular from 'pages/interface/components/AvatarCircular/index.js';
 
 export default function Page({ userFound: userFoundFallback }) {
   const {
@@ -83,17 +84,22 @@ function UserProfile({ userFound, onUpdate }) {
         </Flash>
       )}
 
-      <UserHeader username={userFound.username}>
-        <UserFeatures userFound={userFound} />
-        <OptionsMenu
-          canUpdate={canUpdate}
-          isAuthenticatedUser={isAuthenticatedUser}
-          onNuke={onUpdate}
-          setGlobalMessageObject={setGlobalMessageObject}
-          user={user}
-          userFound={userFound}
-        />
-      </UserHeader>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
+        <AvatarCircular user={userFound} size="medium" />
+        <Box sx={{ flex: 1 }}>
+          <UserHeader username={userFound.username}>
+            <UserFeatures userFound={userFound} />
+            <OptionsMenu
+              canUpdate={canUpdate}
+              isAuthenticatedUser={isAuthenticatedUser}
+              onNuke={onUpdate}
+              setGlobalMessageObject={setGlobalMessageObject}
+              user={user}
+              userFound={userFound}
+            />
+          </UserHeader>
+        </Box>
+      </Box>
 
       <Box
         sx={{
