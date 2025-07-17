@@ -66,7 +66,6 @@ export const getStaticProps = getStaticPropsRevalidate(async (context) => {
     };
   }
 
-  // Buscar dados dos usuários para obter avatares
   const usernames = [...new Set(contentListFound.map((content) => content.owner_username))];
   const users = await Promise.all(
     usernames.map(async (username) => {
