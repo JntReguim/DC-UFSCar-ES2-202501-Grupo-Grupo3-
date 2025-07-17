@@ -89,6 +89,16 @@ describe('User Model', () => {
       expect(result.avatar_url).not.toBe(previousAvatarUrl);
     });
     
+    it('should throw an error if fs.readFile fails', async () => {
+      const targetUser = { id: 'user-id-123' };
+      const postedUserData = { avatar: { filepath: '/tmp/file.png' } };
+
+      vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('Failed to read file'));
+
+      await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Failed to read file');
+    });
+
     it('should throw an error if validator throws (invalid avatar)', async () => {
       const targetUser = { id: 'user-id-123' };
       const postedUserData = {};
