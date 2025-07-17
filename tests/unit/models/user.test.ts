@@ -75,5 +75,60 @@ describe('User Model', () => {
 
       await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow(ValidationError);
     });
+
+    it('should replace the existing avatar with a new one', async () => {
+      const mockUploadResponse = {
+        cid: 'fake-cid',
+        id: 'fake-id',
+        name: 'avatar.png',
+        size: 123456,
+        type: 'image/png',
+        created_at: new Date().toISOString(),
+        number_of_files: 1,
+        mime_type: 'image/png',
+        group_id: 'group-123',
+        keyvalues: {},
+        sha256: 'hash123',
+        path: '/tmp/avatar.png',
+        vectorized: false,
+        network: 'ipfs',
+      };
+
+      const previousAvatarUrl = 'https://example.com/old-avatar.png';
+      const targetUser = { id: 'user-id-123', avatar_url: previousAvatarUrl };
+      const postedUserData = { avatar: { filepath: '/tmp/new-avatar.png' } };
+      const newAvatarUrl = 'https://example.com/new-avatar.png';
+
+      vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
+      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from(''));
+      vi.mocked(storage.upload.public.file).mockResolvedValue(mockUploadResponse);
+      vi.mocked(storage.gateways.public.convert).mockResolvedValue(newAvatarUrl);
+      vi.mocked(database.query).mockResolvedValue({ rows: [{ id: targetUser.id, avatar_url: newAvatarUrl }] });
+
+      const result = await user.updateAvatar(targetUser, postedUserData);
+      expect(result.avatar_url).toBe(newAvatarUrl);
+      expect(result.avatar_url).not.toBe(previousAvatarUrl);
+    });
+    
+    it('should throw an error if fs.readFile fails', async () => {
+      const targetUser = { id: 'user-id-123' };
+      const postedUserData = { avatar: { filepath: '/tmp/file.png' } };
+
+      vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
+      vi.mocked(fs.readFile).mockRejectedValue(new Error('Failed to read file'));
+
+      await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Failed to read file');
+    });
+
+    it('should throw an error if validator throws (invalid avatar)', async () => {
+      const targetUser = { id: 'user-id-123' };
+      const postedUserData = {};
+
+      vi.mocked(validator).mockImplementation(() => {
+        throw new Error('Invalid avatar data');
+      });
+
+      await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Invalid avatar data');
+    });
   });
 });

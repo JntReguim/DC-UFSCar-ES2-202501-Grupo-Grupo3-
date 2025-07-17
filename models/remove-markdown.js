@@ -5,7 +5,7 @@ import logger from 'infra/logger';
 
 export default function customRemoveMarkdown(md, options = {}) {
   options.oneLine = Object.hasOwn(options, 'oneLine') ? options.oneLine : true;
-  options.throwError = Object.hasOwn(options, 'logError') ? options.throwError : true;
+  options.logError = Object.hasOwn(options, 'logError') ? options.logError : true;
   options.trim = Object.hasOwn(options, 'trim') ? options.trim : true;
 
   let output = md || '';
@@ -24,7 +24,7 @@ export default function customRemoveMarkdown(md, options = {}) {
 
     output = truncate(output, options.maxLength);
   } catch (e) {
-    if (options.throwError) {
+    if (options.logError) {
       logger.error(e);
     }
 
