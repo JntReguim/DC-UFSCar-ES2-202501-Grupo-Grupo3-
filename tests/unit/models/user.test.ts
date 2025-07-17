@@ -43,10 +43,11 @@ describe('User Model', () => {
       vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
       vi.mocked(fs.readFile).mockResolvedValue(Buffer.from(''));
       vi.mocked(storage.upload.public.file).mockResolvedValue(mockUploadResponse);
-
       vi.mocked(storage.gateways.public.convert).mockResolvedValue(fakeAvatarUrl);
       vi.mocked(database.query).mockResolvedValue({ rows: [mockUpdatedUser] });
+
       const result = await user.updateAvatar(targetUser, postedUserData);
+
       expect(database.query).toHaveBeenCalledWith(
         expect.objectContaining({
           values: [fakeAvatarUrl, targetUser.id],
@@ -54,6 +55,26 @@ describe('User Model', () => {
         expect.any(Object),
       );
       expect(result).toStrictEqual(mockUpdatedUser);
+    });
+
+    it('should throw ValidationError if avatar format is invalid (e.g., PDF, GIF)', async () => {
+      const targetUser = { id: 'user-id-123' };
+      const postedUserData = { avatar: { filepath: '/tmp/file.pdf' } };
+
+      vi.mocked(validator).mockImplementation(() => {
+        throw new ValidationError({
+          message: 'Arquivo inválido',
+          action: 'Envie uma imagem nos formatos suportados',
+          stack: new Error().stack,
+          statusCode: 400,
+          context: null,
+          errorLocationCode: 'MODEL:USER:UPDATE_AVATAR:INVALID_FILE',
+          key: 'avatar',
+          type: 'validation',
+        });
+      });
+
+      await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow(ValidationError);
     });
 
     it('should throw ValidationError if avatar file size exceeds 10MB', async () => {
@@ -109,7 +130,7 @@ describe('User Model', () => {
       expect(result.avatar_url).toBe(newAvatarUrl);
       expect(result.avatar_url).not.toBe(previousAvatarUrl);
     });
-    
+
     it('should throw an error if fs.readFile fails', async () => {
       const targetUser = { id: 'user-id-123' };
       const postedUserData = { avatar: { filepath: '/tmp/file.png' } };
