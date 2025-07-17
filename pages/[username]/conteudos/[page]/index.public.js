@@ -95,7 +95,6 @@ export const getStaticProps = getStaticPropsRevalidate(async (context) => {
 
   const contentListFound = results.rows;
 
-  // Buscar dados dos usuários para obter avatares
   const usernames = [...new Set(contentListFound.map((content) => content.owner_username))];
   const users = await Promise.all(
     usernames.map(async (username) => {
@@ -107,8 +106,7 @@ export const getStaticProps = getStaticPropsRevalidate(async (context) => {
       }
     }),
   );
-
-  // Criar um mapa de username -> userData
+  
   const userMap = {};
   users.forEach((userData) => {
     if (userData) {
@@ -116,7 +114,6 @@ export const getStaticProps = getStaticPropsRevalidate(async (context) => {
     }
   });
 
-  // Adicionar dados do usuário ao contentListFound
   const contentListWithUserData = contentListFound.map((content) => ({
     ...content,
     owner_user: userMap[content.owner_username]
