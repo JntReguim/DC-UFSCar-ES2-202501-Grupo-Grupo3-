@@ -250,7 +250,6 @@ function filterOutput(user, feature, output) {
         content: 'required',
       });
 
-      // Preservar owner_user se existir
       if (content.owner_user) {
         validatedContent.owner_user = content.owner_user;
       }
