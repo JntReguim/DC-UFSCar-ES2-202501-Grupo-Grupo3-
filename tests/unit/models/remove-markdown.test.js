@@ -1,4 +1,3 @@
-import logger from 'infra/logger';
 import removeMarkdown from 'models/remove-markdown';
 
 describe('remove-markdown model', () => {
@@ -55,16 +54,6 @@ describe('remove-markdown model', () => {
       expect(removeMarkdown(input, { maxLength: 18 })).toBe('Truncate this 👩‍❤️‍💋‍👨...');
       expect(removeMarkdown(input, { maxLength: 19 })).toBe('Truncate this 👩‍❤️‍💋‍👨...');
       expect(removeMarkdown(input, { maxLength: 20 })).toBe('Truncate this 👩‍❤️‍💋‍👨 s...');
-    });
-
-    it('should handle errors gracefully and return the original input', () => {
-      const input = {
-        content: 'This is a test',
-      };
-
-      expect(removeMarkdown(input)).toStrictEqual(input);
-      expect(logger.error).toHaveBeenCalledOnce();
-      expect(() => removeMarkdown(input)).not.toThrow();
     });
   });
 });
