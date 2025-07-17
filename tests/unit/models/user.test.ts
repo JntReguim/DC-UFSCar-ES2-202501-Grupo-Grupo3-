@@ -55,4 +55,31 @@ describe('User Model', () => {
       expect(result).toStrictEqual(mockUpdatedUser);
     });
   });
+  it('should throw an error if storage.upload.public.file fails', async () => {
+    const targetUser = { id: 'user-id-123' };
+    const postedUserData = {
+      avatar: { filepath: '/tmp/file.png', originalFilename: 'avatar.png', mimetype: 'image/png' },
+    };
+
+    vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
+    vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('image-data'));
+    vi.mocked(storage.upload.public.file).mockRejectedValue(new Error('Upload failed'));
+
+    await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Upload failed');
+  });
+  it('should throw an error if database.query fails', async () => {
+    const targetUser = { id: 'user-id-123' };
+    const postedUserData = {
+      avatar: { filepath: '/tmp/file.png', originalFilename: 'avatar.png', mimetype: 'image/png' },
+    };
+    const fakeAvatarUrl = 'https://example.com/avatar.png';
+
+    vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
+    vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('image'));
+    vi.mocked(storage.upload.public.file).mockResolvedValue({ cid: 'cid123' });
+    vi.mocked(storage.gateways.public.convert).mockResolvedValue(fakeAvatarUrl);
+    vi.mocked(database.query).mockRejectedValue(new Error('Database update failed'));
+
+    await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Database update failed');
+  });
 });
