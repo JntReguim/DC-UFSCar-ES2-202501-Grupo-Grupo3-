@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 
 import database from 'infra/database.js';
 import { storage } from 'infra/storage';
+import content from 'models/content';
 import user from 'models/user';
 import validator from 'models/validator.js';
 
@@ -76,10 +77,51 @@ describe('User Model', () => {
 
     vi.mocked(validator).mockReturnValue({ avatar: postedUserData.avatar });
     vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('image'));
-    vi.mocked(storage.upload.public.file).mockResolvedValue({ cid: 'cid123' });
+    vi.mocked(storage.upload.public.file).mockResolvedValue({
+      cid: 'cid123',
+      id: '',
+      name: '',
+      size: 0,
+      created_at: '',
+      number_of_files: 0,
+      mime_type: '',
+      group_id: '',
+      keyvalues: {},
+      vectorized: false,
+      network: '',
+    });
     vi.mocked(storage.gateways.public.convert).mockResolvedValue(fakeAvatarUrl);
     vi.mocked(database.query).mockRejectedValue(new Error('Database update failed'));
 
     await expect(user.updateAvatar(targetUser, postedUserData)).rejects.toThrow('Database update failed');
+  });
+
+  it('should return content with user_avatar_url when viewing a post', async () => {
+    const mockContent = {
+      id: 'content-123',
+      user_id: 'user-123',
+      user_avatar_url: 'https://example.com/avatar.png',
+    };
+    const findOptions = {
+      id: 'content-123',
+    };
+
+    vi.mocked(database.query).mockResolvedValue({ rows: [mockContent] });
+    const result = await content.findOne(findOptions);
+
+    expect(result.user_avatar_url).toBeDefined();
+    expect(result.user_avatar_url).toBe('https://example.com/avatar.png');
+  });
+
+  it('should return list of contents with user_avatar_url', async () => {
+    const mockContents = [
+      { id: '1', user_avatar_url: 'https://example.com/avatar1.png' },
+      { id: '2', user_avatar_url: 'https://example.com/avatar2.png' },
+    ];
+
+    vi.mocked(database.query).mockResolvedValue({ rows: mockContents });
+
+    const result = await content.findAll();
+    expect(result.every((item) => item.user_avatar_url)).toBe(true);
   });
 });

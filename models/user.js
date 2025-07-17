@@ -363,7 +363,11 @@ async function update(targetUser, postedUserData, options = {}) {
 
 async function updateAvatar(targetUser, postedUserData, options = {}) {
   const validPostedUserData = validatePatchSchema(postedUserData, true);
-  const avatarUrl = await uploadAvatar(validPostedUserData.avatar);
+  let avatarUrl = null;
+  if (validPostedUserData.avatar) {
+    avatarUrl = await uploadAvatar(validPostedUserData.avatar);
+  }
+
   const updatedUser = await runUpdateQuery(targetUser, avatarUrl, {
     transaction: options.transaction,
   });
