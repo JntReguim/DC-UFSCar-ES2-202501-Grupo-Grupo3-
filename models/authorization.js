@@ -246,9 +246,15 @@ function filterOutput(user, feature, output) {
 
   if (feature === 'read:content:list') {
     filteredOutputValues = output.map((content) => {
-      return validator(content, {
+      const validatedContent = validator(content, {
         content: 'required',
       });
+
+      if (content.owner_user) {
+        validatedContent.owner_user = content.owner_user;
+      }
+
+      return validatedContent;
     });
   }
 

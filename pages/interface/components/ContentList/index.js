@@ -10,10 +10,10 @@ import {
   Tooltip,
 } from '@/TabNewsUI';
 import { CommentIcon } from '@/TabNewsUI/icons';
+import AvatarCircular from 'pages/interface/components/AvatarCircular/index.js';
 
 export default function ContentList({ ad, contentList: list, pagination, paginationBasePath, emptyStateProps }) {
   const listNumberStart = pagination.perPage * (pagination.currentPage - 1) + 1;
-
   return (
     <>
       {list.length > 0 ? (
@@ -33,15 +33,12 @@ export default function ContentList({ ad, contentList: list, pagination, paginat
               <AdBanner ad={ad} />
             </Box>
           )}
-
           <RenderItems />
-
           <EndOfRelevant pagination={pagination} paginationBasePath={paginationBasePath} />
         </Box>
       ) : (
         <EmptyState title="Nenhum conteúdo encontrado" {...emptyStateProps} />
       )}
-
       {list.length > 0 ? <Pagination {...pagination} basePath={paginationBasePath} /> : null}
     </>
   );
@@ -73,6 +70,9 @@ export default function ContentList({ ad, contentList: list, pagination, paginat
           <Box as="article">
             <Box
               sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
                 overflow: 'auto',
                 fontWeight: 'semibold',
                 fontSize: 2,
@@ -85,6 +85,10 @@ export default function ContentList({ ad, contentList: list, pagination, paginat
                   },
                 },
               }}>
+              <AvatarCircular
+                user={contentObject.owner_user || { username: contentObject.owner_username, avatar_url: null }}
+                size="small"
+              />
               {contentObject.parent_id ? (
                 <Link
                   sx={{ wordWrap: 'break-word', fontStyle: 'italic', fontWeight: 'normal' }}
@@ -107,6 +111,7 @@ export default function ContentList({ ad, contentList: list, pagination, paginat
                 fontSize: 0,
                 whiteSpace: 'nowrap',
                 color: 'neutral.emphasis',
+                alignItems: 'center',
               }}>
               {contentObject.type === 'ad' ? (
                 <Text sx={{ color: 'success.fg' }}>Patrocinado</Text>
@@ -160,6 +165,5 @@ function EndOfRelevant({ pagination, paginationBasePath }) {
       </Box>
     );
   }
-
   return null;
 }
